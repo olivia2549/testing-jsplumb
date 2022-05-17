@@ -47,10 +47,10 @@
 <script>
 import $ from 'jquery';
 import { jsPlumb } from 'jsplumb';
-import { loadScript } from "vue-plugin-load-script";
+// import { loadScript } from "vue-plugin-load-script";
 
 require('./assets/css/styles.css');
-loadScript('https://code.jquery.com/jquery-3.6.0.min.js');
+// loadScript('https://code.jquery.com/jquery-3.6.0.min.js');
 
 export default {
   name: 'MainApp',
@@ -75,6 +75,9 @@ export default {
     };
   },
   methods: {
+    // deleteConnection(instance) {
+    //   instance.deleteConnection(window.selectedConnection);
+    // },
     createFlow(flowData) {
       const instance = jsPlumb.getInstance({
         Connector: 'Straight',
@@ -121,12 +124,29 @@ export default {
         // if right-clicking on connector
         if (component.hasClass("jtk-connector")) {
           event.preventDefault();
-          // window.selectedConnection = component;
+          window.selectedConnection = component;
           $(`<div class="context-menu">
               <button class="delete-connection">Delete Connection</button>
             </div>`).appendTo("body").css({top: event.pageY, left: event.pageX});
         }
       });
+
+      $("body").on("click", ".delete-connection", () => {
+        instance.deleteConnection(window.selectedConnection);
+      });
+
+      // remove context menu when you click away
+      $(document).bind("click", () => { $("div.context-menu").remove(); });
+
+      // right clicked inside the map
+      $(".map-container").on("contextmenu", (event) => {
+        event.preventDefault();
+      });
+
+      // $("body").on("contextmenu", "#map-container .control", (event) => {
+      //   event.preventDefault();
+      //   window.selectedControl = $(this).attr("name");
+      // });
 
       jsPlumb.fire('jsPlumbDemoLoaded', instance);
     },
