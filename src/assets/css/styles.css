@@ -13,7 +13,7 @@ body {
 
 
 /** ELEMENTS **/
-.map-container .node {
+#map-container .node {
 	border:0.1em solid darkgray;
 	line-height:2em;
 }

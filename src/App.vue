@@ -6,9 +6,30 @@
           <div id="toolbox" class="justify-content-center"></div>
         </div>
         <div class="col-md-9">
-          <div class="map-container" id="map-container" style="position: relative;"></div>
+          <div class="map-container" id="map-container" style="position: relative;">
+            <div
+              v-for="node in data.nodes"
+              @contextmenu="event => openContextMenuForNode(event, node)"
+              :key="node.name"
+              :id="node.name"
+              class="node"
+            >
+              {{ node.name }}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+    <div
+      v-if="contextMenuInfo"
+      class="context-menu"
+      @mousedown="event => event.stopPropagation()"
+      :style="{
+        top: contextMenuInfo.y + 'px',
+        left: contextMenuInfo.x + 'px'
+      }"
+    >
+      <button @click="deleteNode(contextMenuInfo.node)">delete</button>
     </div>
   </div>
 </template>
@@ -16,13 +37,11 @@
 <style>
 @import "https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css";
 @import "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css";
-
 /******  SETUP  ******/
 .window { z-index: 20; }
 .jtk-connector { z-index: 4; }
 .jtk-endpoint { z-index: 5; }
 .jtk-overlay { z-index: 6; }
-
 /******  CUSTOM STYLES  ******/
 #map-container, #toolbox {
   margin: 20px 0;
@@ -41,21 +60,18 @@
   border: 1px solid black;
   padding: 2px;
 }
-
 </style>
 
 <script>
-import $ from 'jquery';
 import { jsPlumb } from 'jsplumb';
 // import { loadScript } from "vue-plugin-load-script";
-
 require('./assets/css/styles.css');
 // loadScript('https://code.jquery.com/jquery-3.6.0.min.js');
-
 export default {
   name: 'MainApp',
   data() {
     return {
+      contextMenuInfo: null,
       data: {
         nodes: [
           {
@@ -74,7 +90,31 @@ export default {
       },
     };
   },
+  created() {
+    window.addEventListener('mousedown', this.handleWindowClick)
+  },
+  destroyed() {
+    window.removeEventListener('mousedown', this.handleWindowClick)
+  },
   methods: {
+    deleteNode(node) {
+      console.log('deleting node???', node);
+      this.data.nodes = this.data.nodes.filter(n => n !== node);
+      this.jsPlumbInstance.remove(node.name);
+      // hide context menu
+      this.contextMenuInfo = null;
+    },
+    openContextMenuForNode(event, node) {
+      event.preventDefault();
+      this.contextMenuInfo = {
+        node,
+        x: event.clientX,
+        y: event.clientY
+      }
+    },
+    handleWindowClick() {
+      this.contextMenuInfo = null
+    },
     // deleteConnection(instance) {
     //   instance.deleteConnection(window.selectedConnection);
     // },
@@ -97,14 +137,10 @@ export default {
         ],
         Container: 'map-container',
       });
-
+      this.jsPlumbInstance = instance
       // initialize nodes
       instance.batch(() => {
         for (const node of flowData.nodes) {
-          $('.map-container').append(
-            `<div id="${node.name}" class="node">${node.name}</div>`,
-          );
-
           instance.addEndpoint(node.name, {
             anchor: ["Right", "BottomRight", "Bottom", "BottomLeft", "Left", "TopLeft", "Top", "TopRight"],
           }, {
@@ -113,41 +149,10 @@ export default {
             dragAllowedWhenFull: false,
           });
         }
-
         for (const node of flowData.nodes) {
-          instance.draggable(`${node.name}`, {"containment": true});
+          instance.draggable(node.name, { containment: true });
         }
       });
-
-      // contextmenu means right clicked on connection or endpoint
-      instance.bind("contextmenu", (component, event) => {
-        // if right-clicking on connector
-        if (component.hasClass("jtk-connector")) {
-          event.preventDefault();
-          window.selectedConnection = component;
-          $(`<div class="context-menu">
-              <button class="delete-connection">Delete Connection</button>
-            </div>`).appendTo("body").css({top: event.pageY, left: event.pageX});
-        }
-      });
-
-      $("body").on("click", ".delete-connection", () => {
-        instance.deleteConnection(window.selectedConnection);
-      });
-
-      // remove context menu when you click away
-      $(document).bind("click", () => { $("div.context-menu").remove(); });
-
-      // right clicked inside the map
-      $(".map-container").on("contextmenu", (event) => {
-        event.preventDefault();
-      });
-
-      // $("body").on("contextmenu", "#map-container .control", (event) => {
-      //   event.preventDefault();
-      //   window.selectedControl = $(this).attr("name");
-      // });
-
       jsPlumb.fire('jsPlumbDemoLoaded', instance);
     },
   },
