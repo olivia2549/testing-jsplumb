@@ -13,23 +13,24 @@ body {
 
 
 /** ELEMENTS **/
-#map-container .node {
-	border:0.1em solid darkgray;
-	line-height:2em;
-}
-
 .node {
     background-color:white;
-    border:1px solid #346789;
-    text-align:center;
+    border:1px solid darkgray;
     z-index:24;
     cursor:pointer;
     -moz-border-radius:0.5em;
     border-radius:0.5em;
-    position:absolute;
-    color:black;
+    width: max-content;
     padding:0.5em;
-    line-height: 80px;
+    line-height: 2em;
+}
+
+#map-container .node {
+    position:absolute;
+}
+
+#toolbox .node {
+    margin: 5px;
 }
 
 .node:hover {
