@@ -72,6 +72,20 @@
     >
       <button @click="deleteConnection(contextMenuConnection.connection)">delete</button>
     </div>
+    <!--- Plus Sign --->
+    <div ref="plus">
+      <div id="plus">
+        <p style="font-size: large; font-weight: bold;">+</p>
+      </div>
+      <div><p class="label">increases</p></div>
+    </div>
+    <!--- Minus Sign --->
+    <div ref="minus">
+      <div id="minus">
+        <p style="font-size: large; font-weight: bold;">-</p>
+      </div>
+      <div><p class="label">decreases</p></div>
+    </div>
   </div>
 </template>
 
@@ -222,6 +236,13 @@ export default {
             location: 1,
             id: 'arrow',
             foldback: 0.3,
+          }],
+          ['Custom', {
+            create: () => {
+              return this.$refs.plus;
+            },
+            location: 0.5,
+            id: 'label',
           }],
         ],
         Container: 'map-container',

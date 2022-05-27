@@ -33,6 +33,31 @@ body {
     margin: 5px;
 }
 
+#plus, #minus {
+    background-color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+}
+
+#plus {
+    border: 1px solid #12e712;
+    color: #12e712;
+}
+
+#minus {
+    border: 1px solid red;
+    color: red;
+}
+
+#label {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 0.5em;
+    color:#123456;
+}
+
 .node:hover {
     border:1px solid #123456;
     box-shadow: 2px 2px 19px #444;
